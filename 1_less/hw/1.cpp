@@ -9,7 +9,7 @@ int main() {
     cout << "Hello, world!" << endl;
 
     //comment
-    //123
+    //qwerty
 
  //ttt
     return 0;
