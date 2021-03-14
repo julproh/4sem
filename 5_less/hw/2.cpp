@@ -7,6 +7,7 @@
 #include <vector>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unordered_map>
 
 using namespace std; 
 
@@ -35,42 +36,57 @@ using namespace std;
 
 int main() {
 	
-	vector<pair<char, char32_t>> conv = 
-	{
-		make_pair('а','a'),make_pair('б','b'),make_pair('в','v'),make_pair('г','g'),make_pair('д','d'),
-		make_pair('е','e'),make_pair('ж','j'),make_pair('з','z'),make_pair('и','i'),make_pair('ы','i'),
-		make_pair('й','y'),make_pair('к','k'),make_pair('л','l'),make_pair('м','m'),make_pair('н','n'),
-		make_pair('о','o'),make_pair('п','p'),make_pair('р','R'),make_pair('с','s'),make_pair('т','t'),
-		make_pair('у','u'),make_pair('ф','f'),make_pair('x','h'),make_pair('ц','c'),make_pair('ч','сh'),
-		make_pair('ш','sh'),make_pair('щ','sh'),make_pair('ъ','\''),make_pair('ь','\''),make_pair('э','ie'),
-		make_pair('ю','iu'),make_pair('я','ia') 
-	};
+
+	unordered_map<char32_t,basic_string<char32_t>> translit_table = {
+    {U'а',U"a"}, {U'б',U"b"}, {U'в',U"v"},
+    {U'г',U"g"}, {U'д',U"d"}, {U'е',U"e"},
+	{U'ё',U"yo"}, {U'ж',U"zh"},{U'з',U"z"},
+    {U'и',U"i"}, {U'й',U"j"}, {U'к',U"k"},
+    {U'л',U"l"}, {U'м',U"m"}, {U'н',U"n"},
+    {U'о',U"o"}, {U'п',U"p"}, {U'р',U"r"},
+    {U'с',U"s"}, {U'т',U"t"}, {U'у',U"u"},
+    {U'ф',U"f"}, {U'х',U"x"}, {U'ц',U"c"},
+    {U'ч',U"ch"}, {U'ш',U"sh"}, {U'щ',U"shh"},
+    {U'ъ',U"``"}, {U'ы',U"y`"}, {U'ь',U"`"},
+    {U'э',U"e`"}, {U'ю',U"yu"}, {U'я',U"ya"},
+    {U'А',U"A"}, {U'Б',U"B"}, {U'В',U"V"},
+    {U'Г',U"G"}, {U'Д',U"D"}, {U'Е',U"E"},
+    {U'Ё',U"YO"}, {U'Ж',U"ZH"}, {U'З',U"Z"},
+    {U'И',U"I"}, {U'Й',U"J"}, {U'К',U"K"},
+    {U'Л',U"L"}, {U'М',U"M"}, {U'Н',U"N"},
+    {U'О',U"O"}, {U'П',U"P"}, {U'Р',U"R"},
+    {U'С',U"S"}, {U'Т',U"T"}, {U'У',U"U"},
+    {U'Ф',U"F"}, {U'Х',U"X"}, {U'Ц',U"X"},
+    {U'Ч',U"CH"}, {U'Ш',U"SH"}, {U'Щ',U"SHH"},
+    {U'Ъ',U"``"}, {U'Ы',U"Y`"}, {U'Ь',U"`"},
+    {U'Э',U"E`"}, {U'Ю',U"YU"},{U'Я',U"YA"},
+    {U' ',U" "},
+    };
+
+
+	
     string line = "отличная погодка намечается" ;
 
-    //cin >> line;
-    // string u8str = convert_locale_to_utf(line);
-	// cout << u8str << endl;
-	//u32string u32str =boost::locale::conv::utf_to_utf < char32_t, char > (line);
-	//u32string newline;
+	std::cout << line << endl;
+	u32string u32str =boost::locale::conv::utf_to_utf < char32_t, char > (line);
+	u32string newline;
 	
-	string newline;
-	for (auto c : line) {
-		for(auto i: conv) {
+	 for (auto c : u32str) {
+		for(auto i: translit_table) {
 			if (i.first == c) {
-				newline.push_back(i.second);
+				newline.append(i.second);
 				break;
 			}
 			else if (c == ' ') {
-				newline.push_back(' ');
+				newline.append(U" ");
 				break;
 			}
 			}
 	}
 	
 
-	
-	//string newline8 = boost::locale::conv::utf_to_utf < char, char32_t >(newline);
-	cout << newline << endl;
+	string newline8 = boost::locale::conv::utf_to_utf < char, char32_t >(newline);
+	std::cout << newline8 << endl;
 	
 }
 
