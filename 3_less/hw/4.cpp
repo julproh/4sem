@@ -7,7 +7,7 @@
 #include <algorithm>
 
 
-int N = 5000;
+int N = 100;
 using namespace std;
 
 string String() {
@@ -20,21 +20,20 @@ string String() {
     };
     string str(5,0);
     generate_n( str.begin(), 5, randchar );
-    cout << str << endl;
     return str;
 }
 
-void kollizion(vector <size_t> hashes)
+void collision(vector <size_t> hashes)
 {
             string File_ = "out2.dat";
     ofstream out(File_);
 
     if (!out.is_open()) {
         cerr << "Can not open: " << File_ << endl;
-        exit;
+        exit(EXIT_FAILURE);
     }
 
-    for (unsigned int k = 1; k < N; k++) {
+    for (unsigned int k = 1000; k < N/10; k++) {
         vector <size_t> dub;
         int count = 0;
 
@@ -216,59 +215,59 @@ int main()
 
     vector <size_t> hashes(N);
 
-    for (size_t j = 0; j < strings.size(); j++)
-    {
-      hashes[j] = RSHash(strings[j].c_str(), N);
-    }
-    kollizion(hashes);
-    
     // for (size_t j = 0; j < strings.size(); j++)
     // {
-    //    hashes[j] = JSHash(strings[j].c_str(), N);
+    //   hashes[j] = RSHash(strings[j].c_str(), N);
     // }
-    // kollizion(hashes);
+    // collision(hashes);
+    
+    for (size_t j = 0; j < strings.size(); j++)
+    {
+       hashes[j] = JSHash(strings[j].c_str(), N);
+    }
+    collision(hashes);
 
     // for (size_t j = 0; j < strings.size(); j++)
     // {
     //    hashes[j] = PJWHash(strings[j].c_str(), N);
     // }
-    // kollizion(hashes);
+    // collision(hashes);
 
     // for (size_t j = 0; j < strings.size(); j++)
     // {
     //    hashes[j] = ELFHash(strings[j].c_str(), N);
     // }
-    // kollizion(hashes);     
+    // collision(hashes);     
 
     // for (size_t j = 0; j < strings.size(); j++)
     // {
     //    hashes[j] = BKDRHash(strings[j].c_str(), N);
     // }
-    // kollizion(hashes);
+    // collision(hashes);
 
     // for (size_t j = 0; j < strings.size(); j++)
     // {
     //    hashes[j] = SDBMHash(strings[j].c_str(), N);
     // }
-    // kollizion(hashes);
+    // collision(hashes);
 
     // for (size_t j = 0; j < strings.size(); j++)
     // {
     //   hashes[j] = DJBHash(strings[j].c_str(), N);
     // }
-    // kollizion(hashes);
+    // collision(hashes);
 
     // for (size_t j = 0; j < strings.size(); j++)
     // {
     //   hashes[j] = DEKHash(strings[j].c_str(), N);
     // }
-    // kollizion(hashes);
+    // collision(hashes);
 
     // for (size_t j = 0; j < strings.size(); j++)
     // {
     //     hashes[j] = APHash(strings[j].c_str(), N);
     // }
-    // kollizion(hashes);
+    // collision(hashes);
 
     return 0;
 }
