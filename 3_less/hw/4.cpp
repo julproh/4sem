@@ -7,7 +7,7 @@
 #include <algorithm>
 
 
-int N = 3000;
+int N = 5000;
 using namespace std;
 
 string String() {
@@ -18,8 +18,9 @@ string String() {
         random_device rd;
         return charset[ rd() % max_index ];
     };
-    string str(3,0);
-    generate_n( str.begin(), 3, randchar );
+    string str(5,0);
+    generate_n( str.begin(), 5, randchar );
+    cout << str << endl;
     return str;
 }
 
