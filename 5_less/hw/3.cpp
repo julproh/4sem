@@ -8,7 +8,7 @@ using namespace std;
 int main()
 {
     vector <string> v{"alex@yandex.ru",
-                    "alex-27@yandex.com",
+                    "alex_27@yandex.com",
                     "alex.27@yandex.com",
                     "alex111@devcolibri.com",
                     "alex100@devcolibri.com.ua",
@@ -21,9 +21,9 @@ int main()
 	std::regex regular("([\\w-]+)"
                         "(@)"
                         "([\\w-]+)"
-                        "(\\.)"
+                        "(\\x2E.)"
                         "([A-Za-z]{2,6})"
-                        "((\\.[A-Za-z]{2,6}){0,1})");
+                        "((\\x2E.[A-Za-z]{1,6}){0,1})");
 
     for (auto i : v) {
         cmatch result;
