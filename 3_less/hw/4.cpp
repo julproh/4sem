@@ -7,7 +7,7 @@
 #include <algorithm>
 
 
-int N = 100;
+int N = 4000;
 using namespace std;
 
 string String() {
@@ -23,7 +23,7 @@ string String() {
     return str;
 }
 
-void collision(vector <size_t> hashes)
+void collision(vector <unsigned int> hashes)
 {
             string File_ = "out2.dat";
     ofstream out(File_);
@@ -33,8 +33,8 @@ void collision(vector <size_t> hashes)
         exit(EXIT_FAILURE);
     }
 
-    for (unsigned int k = 1000; k < N/10; k++) {
-        vector <size_t> dub;
+    for (unsigned int k = 1; k < N; k++) {
+        vector <unsigned int> dub;
         int count = 0;
 
         for (int i = 0; i < k - 1; i++) {
@@ -75,7 +75,7 @@ unsigned int RSHash(const char* str, unsigned int length)
         hash = hash * a + (*str);
         a = a * b;
     }
-    return hash;
+    return hash%1000000;
 }
 
 unsigned int JSHash(const char* str, unsigned int length)
@@ -88,7 +88,7 @@ unsigned int JSHash(const char* str, unsigned int length)
         hash ^= ((hash << 5) + (*str) + (hash >> 2));
     }
 
-    return hash;
+    return hash%1000000;
 }
 
 unsigned int PJWHash(const char* str, unsigned int length)
@@ -111,7 +111,7 @@ unsigned int PJWHash(const char* str, unsigned int length)
             hash = ((hash ^ (test >> ThreeQuarters)) & (~HighBits));
         }
     }
-    return hash;
+    return hash%1000000;
 }
 
 unsigned int ELFHash(const char* str, unsigned int length)
@@ -132,7 +132,7 @@ unsigned int ELFHash(const char* str, unsigned int length)
         hash &= ~x;
     }
 
-    return hash;
+    return hash%1000000;
 }
 
 unsigned int BKDRHash(const char* str, unsigned int length)
@@ -145,7 +145,7 @@ unsigned int BKDRHash(const char* str, unsigned int length)
     {
         hash = (hash * seed) + (*str);
     }
-    return hash;
+    return hash%1000000;
 }
 
 unsigned int SDBMHash(const char* str, unsigned int length)
@@ -158,7 +158,7 @@ unsigned int SDBMHash(const char* str, unsigned int length)
         hash = (*str) + (hash << 6) + (hash << 16) - hash;
     }
 
-    return hash;
+    return hash%1000000;
 }
 
 unsigned int DJBHash(const char* str, unsigned int length)
@@ -171,7 +171,7 @@ unsigned int DJBHash(const char* str, unsigned int length)
         hash = ((hash << 5) + hash) + (*str);
     }
 
-    return hash;
+    return hash%1000000;
 }
 
 unsigned int DEKHash(const char* str, unsigned int length)
@@ -184,12 +184,12 @@ unsigned int DEKHash(const char* str, unsigned int length)
         hash = ((hash << 5) ^ (hash >> 27)) ^ (*str);
     }
 
-    return hash;
+    return hash%1000000;
 }
 
 unsigned int APHash(const char* str, unsigned int length)
 {
-    unsigned int hash = 0xAAAAAAAA;
+    unsigned int hash = 0xAAAAAAA;
     unsigned int i = 0;
 
     for (i = 0; i < length; ++str, ++i)
@@ -198,22 +198,22 @@ unsigned int APHash(const char* str, unsigned int length)
             (~((hash << 11) + ((*str) ^ (hash >> 5))));
     }
 
-    return hash;
+    return hash%1000000;
 }
 
 
 int main()
 {
     vector <string> strings(N);
-    for (size_t j = 0; j < strings.size(); j++)
+    for (auto j = 0; j < strings.size(); j++)
     {
-        for (size_t i = 0; i < 3; i++)
+        for (auto i = 0; i < 3; i++)
         {
             strings[j] = String();
         }
     }
 
-    vector <size_t> hashes(N);
+    vector <unsigned int> hashes(N);
 
     // for (size_t j = 0; j < strings.size(); j++)
     // {
@@ -221,17 +221,17 @@ int main()
     // }
     // collision(hashes);
     
-    for (size_t j = 0; j < strings.size(); j++)
-    {
-       hashes[j] = JSHash(strings[j].c_str(), N);
-    }
-    collision(hashes);
-
-    // for (size_t j = 0; j < strings.size(); j++)
+    // for (auto j = 0; j < strings.size(); j++)
     // {
-    //    hashes[j] = PJWHash(strings[j].c_str(), N);
+    //    hashes[j] = JSHash(strings[j].c_str(), N);
     // }
     // collision(hashes);
+
+    for (size_t j = 0; j < strings.size(); j++)
+    {
+       hashes[j] = PJWHash(strings[j].c_str(), N);
+    }
+    collision(hashes);
 
     // for (size_t j = 0; j < strings.size(); j++)
     // {
