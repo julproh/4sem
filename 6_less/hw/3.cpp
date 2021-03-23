@@ -9,9 +9,9 @@ using namespace std;
 using namespace std::chrono_literals;
 
 template <typename T>
-std::time_t to_time_t(T t)
+time_t to_time_t(T t)
 {
-    using namespace std::chrono;
+    using namespace chrono;
     auto tp = time_point_cast<system_clock::duration>(t - T::clock::now()+ system_clock::now());
     return system_clock::to_time_t(tp);
 }
