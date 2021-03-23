@@ -1,0 +1,3 @@
+age: 3
+name: "Person_3"
+weight: 3.3

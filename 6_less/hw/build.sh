@@ -1,0 +1,1 @@
+g++ -std=c++17  4.cpp -o 4 -lboost_filesystem -lboost_system
