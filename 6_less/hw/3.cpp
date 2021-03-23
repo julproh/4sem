@@ -8,12 +8,12 @@
 using namespace std;
 using namespace std::chrono_literals;
 
-template <typename TP>
-std::time_t to_time_t(TP tp)
+template <typename T>
+std::time_t to_time_t(T t)
 {
     using namespace std::chrono;
-    auto sctp = time_point_cast<system_clock::duration>(tp - TP::clock::now()+ system_clock::now());
-    return system_clock::to_time_t(sctp);
+    auto tp = time_point_cast<system_clock::duration>(t - T::clock::now()+ system_clock::now());
+    return system_clock::to_time_t(tp);
 }
 
 int main() {
@@ -37,3 +37,6 @@ int main() {
     }
     return 0;
 }
+
+//для компиляции
+// g++-10 -std=c++17 3.cpp -o 3
