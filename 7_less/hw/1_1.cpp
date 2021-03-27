@@ -10,14 +10,18 @@ int main () {
 
     random_device rd;
     
+    
+    
     cout << "Введите количество точек: ";
     cin >> n;
 
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> dis(1, n);
 
     for (int i = 0; i < n; i++)
     {
-        int x = rd() % n; // делим длину стороны квадратика на n одинаковых частей и смотрим, в какой мини-квадратик попадет точка
-        int y = rd() % n;
+        int x = dis(gen);
+        int y = dis(gen);
         if (x*x+y*y <= n*n) {
 
             in_circle++;

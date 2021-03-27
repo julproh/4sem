@@ -7,13 +7,17 @@ using namespace std;
 
 
 void counting_points (int &in_circle, int n) {
-    
+    mutex g_mutex;
+    g_mutex.lock();
     random_device rd;
-    int x = rd() % n; // делим длину стороны квадратика на n одинаковых частей и смотрим, в какой мини-квадратик попадет точка
-    int y = rd() % n;
+    mt19937 gen(rd());
+    uniform_int_distribution<> dis(1, n);
+    int x = dis(gen); 
+    int y = dis(gen);
     if (x*x+y*y <= n*n) {
         in_circle++;
     }
+    g_mutex.unlock();
 }
 int main () {
 
