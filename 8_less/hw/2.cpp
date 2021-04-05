@@ -149,6 +149,7 @@ vector<int> parallel_find(string main, string element)
 int main() {
 
     string search_DNA;
+	cout << "Введите код ДНК, котоый необходимо найти" << endl;
     cin >> search_DNA;
     parallel_find(DNA, search_DNA);
     // for (auto i : V) {
