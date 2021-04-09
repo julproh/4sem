@@ -1,0 +1,1 @@
+g++ -std=c++17 managed_shared_memory_string.cpp -o managed_shared_memory_string -lboost_interprocess

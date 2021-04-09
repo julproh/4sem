@@ -1,0 +1,34 @@
+Inter-process communication (IPC)
+
+RAM
+
+1 - проблеа изоляции
+2 - нехватка памяти (подкачка)
+3  -фрагентация
+
+Virtual memory
+
+pages - 4кб
+
+В реальности 
+pages frames -  4 кб
+
+Page Table  с атрибутами (бит присутствия)
+
+TLB
+page fault
+
+kernel
+
+pr1 -  shared memory  -  pr2
+    -  memory-mapped file
+
+Механизмы синхронизации
+1 - Named mutex/cond_var - в ядре
+2 - Anon mutex/cond_var - в разделяемой памяти
+
+Dynamic-linked library
+(DLL)
+проблема 
+1 - файл большой
+
