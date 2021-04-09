@@ -23,12 +23,11 @@ void counting_points (int N, int &in_circle, int n) {
     }   
     }
 
-    g_mutex.lock();
+    
     lock_guard <mutex> lock(mutex);
 
     in_circle +=count;
     
-    g_mutex.unlock();
 
 }
 int main () {
