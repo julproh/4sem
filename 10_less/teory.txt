@@ -1,0 +1,26 @@
+1 -Link - канальный
+2 - Internet (IP)
+3 - Transport (UDP/TCP)
+4 - Application (FTP/HTTP(s))
+
+OSI/ISO
+7 - Application - как использовать
+6 - Representation - определение типа данных
+5 - Session - синхронизация и шифрование
+4 - Transport (адресс - port)
+3 - Internet (фдресс - IP)
+2 - link
+1 - physical
+
+end point - точка достука (IP + port)
+
+socket - 
+UDP-socket
+TCP-socket
+
+
+ifconfig  - для получения IP
+Локальные (серые) - 10.0.0.0/8
+172.16.00/12
+192.168.0.0/16
+Глобальные (белые) - 
