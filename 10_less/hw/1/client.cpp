@@ -5,6 +5,18 @@
 
 char name[50];
 
+std::string read_data_until(boost::asio::ip::tcp::socket & socket) 
+{
+	boost::asio::streambuf buffer;
+
+	boost::asio::read_until(socket, buffer, '!');
+	std::string message;
+	std::istream input_stream(&buffer);
+	std::getline(input_stream, message, '!');
+
+	return message;
+}
+
 void write_data(boost::asio::ip::tcp::socket& socket)
 {
 	char message[50];
