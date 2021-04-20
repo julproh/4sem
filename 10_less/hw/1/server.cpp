@@ -23,6 +23,16 @@ std::string read_data_until(boost::asio::ip::tcp::socket & socket)
 	return message;
 }
 
+void write_data(boost::asio::ip::tcp::socket& socket)
+{
+	char message[50];
+	std::cout << "Write your message: ";
+	std::cin.getline(message, 50);
+	std::string data = name;
+	data = ": " + message + "!EOF";
+	boost::asio::write(socket, boost::asio::buffer(data));
+}
+
 int main(int argc, char ** argv)
 {
 	system("chcp 1251");
@@ -40,8 +50,10 @@ int main(int argc, char ** argv)
 		acceptor.accept(socket);
 
 		std::cout << "connection succeed" << std::endl;
-		while (true)
+		while (true) {
 			std::cout << read_data_until(socket) << std::endl;
+			write_data(socket);
+		}
 		
 	}
 	catch (boost::system::system_error & e)
