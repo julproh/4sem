@@ -25,9 +25,9 @@ std::string read_data_until(boost::asio::ip::tcp::socket & socket)
 
 void write_data(boost::asio::ip::tcp::socket& socket)
 {
-	char message[50];
-	std::cout << "Write your message: ";
-	std::cin.getline(message, 50);
+	char message[100];
+	std::cout << "Сообщение: ";
+	std::cin.getline(message, 100);
 	std::string data = name;
 	data = ": " + message + "!EOF";
 	boost::asio::write(socket, boost::asio::buffer(data));
@@ -36,7 +36,7 @@ void write_data(boost::asio::ip::tcp::socket& socket)
 int main(int argc, char ** argv)
 {
 	system("chcp 1251");
-	const std::size_t size = 30;
+	const std::size_t size = 100;
 	auto port = 3333;
 	boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address_v4::any(), port);
 	boost::asio::io_service io_service;
