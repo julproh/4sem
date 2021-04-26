@@ -1,13 +1,24 @@
 #include <SFML/Graphics.hpp>
 #include <time.h>
 #include <cmath>
+#include <memory>
 #include <list>
+#include <random>
+#include <iostream>
 using namespace sf;
 
 const int W = 1200;
 const int H = 800;
 
 float DEGTORAD = 0.017453f;
+
+enum class names {
+    asteroid,
+    player,
+    bullet,
+    explosion,
+    none
+};
 
 class Animation
 {
@@ -53,15 +64,15 @@ class Entity
    public:
    float x,y,dx,dy,R,angle;
    bool life;
-   std::string name;
+   names name;
    Animation anim;
 
    Entity()
    {
-     life=1;
+     life=true;
    }
 
-   void settings(Animation &a,int X,int Y,float Angle=0,int radius=1)
+   void settings(Animation &a,int X,int Y, float Angle=0,int radius=1) 
    {
      anim = a;
      x=X; y=Y;
@@ -90,15 +101,20 @@ class Entity
 
 class asteroid: public Entity
 {
-   public:
-   asteroid()
-   {
-     dx=rand()%8-4;
-     dy=rand()%8-4;
-     name="asteroid";
-   }
+  public:
+    asteroid()
+    {  
+      using namespace std;
+      random_device rd;
+      mt19937 gen(rd());
+      uniform_int_distribution<> dis(1, 8);
 
-   void update()
+      dx=dis(gen)-4;
+      dy=dis(gen)-4;
+      name=names::asteroid;
+    }
+
+   void update() override
    {
      x+=dx;
      y+=dy;
@@ -115,10 +131,10 @@ class bullet: public Entity
    public:
    bullet()
    {
-     name="bullet";
+     name=names::bullet;
    }
 
-   void  update()
+   void  update() override
    {
      dx=cos(angle*DEGTORAD)*6;
      dy=sin(angle*DEGTORAD)*6;
@@ -126,7 +142,7 @@ class bullet: public Entity
      x+=dx;
      y+=dy;
 
-     if (x>W || x<0 || y>H || y<0) life=0;
+     if (x>W || x<0 || y>H || y<0) life= false;
    }
 
 };
@@ -136,13 +152,16 @@ class player: public Entity
 {
    public:
    bool thrust;
+   int health_points = 3;
+   int points = 0;
 
    player()
    {
-     name="player";
+      name=names::player;
+     // health_points = 3;
    }
 
-   void update()
+   void update() override
    {
      if (thrust)
       { dx+=cos(angle*DEGTORAD)*0.2;
@@ -174,15 +193,27 @@ bool isCollide(Entity *a,Entity *b)
          (a->R + b->R)*(a->R + b->R);
 }
 
+class health {
+public:
+    Animation anim;
+    float x, y, angle;
+    health(Animation& a, int X, int Y, float Angle = 0) :x(X), y(Y), angle(Angle), anim(a) {}
+    void draw(sf::RenderWindow& app)
+    {
+      anim.sprite.setPosition(x, y);
+      anim.sprite.setRotation(angle);
+      anim.sprite.setScale(0.3f, 0.3f);
+      app.draw(anim.sprite);
+    }
+};
 
 int main()
 {
-    srand(time(0));
-
+    std::random_device rd;
     RenderWindow app(VideoMode(W, H), "Asteroids!");
     app.setFramerateLimit(60);
 
-    Texture t1,t2,t3,t4,t5,t6,t7;
+    Texture t1,t2,t3,t4,t5,t6,t7, t8, t9;
     t1.loadFromFile("images/spaceship.png");
     t2.loadFromFile("images/background.jpg");
     t3.loadFromFile("images/explosions/type_C.png");
@@ -190,11 +221,14 @@ int main()
     t5.loadFromFile("images/fire_blue.png");
     t6.loadFromFile("images/rock_small.png");
     t7.loadFromFile("images/explosions/type_B.png");
+    t8.loadFromFile("images/health.png");
+    t9.loadFromFile("images/game_over.png");
 
     t1.setSmooth(true);
     t2.setSmooth(true);
 
     Sprite background(t2);
+    Sprite game_over(t9);
 
     Animation sExplosion(t3, 0,0,256,256, 48, 0.5);
     Animation sRock(t4, 0,0,64,64, 16, 0.2);
@@ -203,19 +237,34 @@ int main()
     Animation sPlayer(t1, 40,0,40,40, 1, 0);
     Animation sPlayer_go(t1, 40,40,40,40, 1, 0);
     Animation sExplosion_ship(t7, 0,0,192,192, 64, 0.5);
+    Animation Health_Points(t8, 10,0,150,150, 1, 0);
 
+    sf::Text text_points;
+    sf::Font font;
+
+
+    font.loadFromFile("images/Chunk Five Print.otf");
+    text_points.setFont(font);
+    text_points.setFillColor(sf::Color(255, 0, 0, 200));
+    text_points.setOutlineColor(sf::Color::Black);
+    text_points.setOutlineThickness(2);
+    text_points.setCharacterSize(48);
+    text_points.setStyle(sf::Text::Regular);
+    text_points.setString(std::to_string(0));
+    text_points.setPosition(20, 0);
+    app.setFramerateLimit(60);
 
     std::list<Entity*> entities;
 
     for(int i=0;i<15;i++)
     {
       asteroid *a = new asteroid();
-      a->settings(sRock, rand()%W, rand()%H, rand()%360, 25);
+      a->settings(sRock, rd()%W, rd()%H, rd()%360, 25);
       entities.push_back(a);
     }
 
     player *p = new player();
-    p->settings(sPlayer,200,200,0,20);
+    p->settings(sPlayer,W/2,H/2,0,20);
     entities.push_back(p);
 
     /////main loop/////
@@ -245,15 +294,18 @@ int main()
     for(auto a:entities)
      for(auto b:entities)
      {
-      if (a->name=="asteroid" && b->name=="bullet")
+      if (a->name==names::asteroid && b->name==names::bullet)
        if ( isCollide(a,b) )
            {
             a->life=false;
             b->life=false;
+            
+            p->points++;
+            text_points.setString(std::to_string(p->points));
 
             Entity *e = new Entity();
             e->settings(sExplosion,a->x,a->y);
-            e->name="explosion";
+            e->name=names::explosion;
             entities.push_back(e);
 
 
@@ -261,25 +313,61 @@ int main()
             {
              if (a->R==15) continue;
              Entity *e = new asteroid();
-             e->settings(sRock_small,a->x,a->y,rand()%360,15);
+             e->settings(sRock_small,a->x,a->y,rd()%360,15);
              entities.push_back(e);
             }
 
            }
 
-      if (a->name=="player" && b->name=="asteroid")
+      if (a->name==names::player && b->name==names::asteroid)
        if ( isCollide(a,b) )
            {
             b->life=false;
-
+            
             Entity *e = new Entity();
             e->settings(sExplosion_ship,a->x,a->y);
-            e->name="explosion";
+            e->name=names::explosion;
             entities.push_back(e);
 
             p->settings(sPlayer,W/2,H/2,0,20);
             p->dx=0; p->dy=0;
-           }
+
+            if (p->health_points > 1)
+              {
+                p->settings(sPlayer, W / 2, H / 2, 0, 20);
+                p->dx = 0;
+                p->dy = 0;
+                p->health_points--;
+              }
+            else
+              {
+                p->health_points--;
+                for (int i = 0; i < 64; i++) {
+                app.draw(background);
+                e->anim.update();
+                e->draw(app);
+                app.display();
+              }
+                app.draw(background);
+                app.display();
+              }
+            }
+
+            if (p-> health_points == 0) {
+
+                app.clear();
+                app.draw(background);
+                for (int i = 0; i < 255; i = i + 7) {
+
+                  game_over.setPosition(330, 150);
+                  game_over.setColor(sf::Color(255, 255, 255, i));
+                  app.draw(game_over);
+                  app.display();
+                }
+                system("pause");
+                return 0;
+            }
+
      }
 
 
@@ -287,14 +375,15 @@ int main()
     else   p->anim = sPlayer;
 
 
-    for(auto e:entities)
-     if (e->name=="explosion")
-      if (e->anim.isEnd()) e->life=0;
+    for(auto e:entities) 
+      if (e->name==names::explosion)
+        if (e->anim.isEnd()) 
+          e->life=false;
 
-    if (rand()%150==0)
+    if (rd()%150 == 0)
      {
        asteroid *a = new asteroid();
-       a->settings(sRock, 0,rand()%H, rand()%360, 25);
+       a->settings(sRock, 0,rd()%H, rd()%360, 25);
        entities.push_back(a);
      }
 
@@ -312,8 +401,16 @@ int main()
    //////draw//////
    app.draw(background);
    for(auto i:entities) i->draw(app);
+
+    for (auto i = 0; i < p->health_points; i++) {  
+      health *health_p = new health(Health_Points, 50 + i * 50, 80, 0);
+    health_p->draw(app);
+  }
+    app.draw(text_points);
    app.display();
-    }
+  }
 
     return 0;
 }
+
+//g++ asteroids.cpp -o asteroids  -lsfml-graphics -lsfml-window -lsfml-system
