@@ -3,7 +3,7 @@
 
 #include <boost/asio.hpp>
 
-char name[50];
+char name[10];
 
 std::string read_data_until(boost::asio::ip::tcp::socket & socket) 
 {
