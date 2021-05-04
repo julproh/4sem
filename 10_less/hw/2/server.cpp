@@ -1,7 +1,12 @@
 #include <iostream>
+#include <iostream>
 #include <string>
+#include <future>
+#include <thread>
 #include <mutex>
 #include <boost/asio.hpp>
+#include <boost/thread.hpp>
+
 using namespace std;
 
 char name[10];
@@ -9,33 +14,38 @@ std::mutex mute;
 
 void read_data_until(boost::asio::ip::tcp::socket & socket)
 {
-	boost::asio::streambuf buffer;
+	while(true){
+		boost::asio::streambuf buffer;
+		//mute.lock();
+		boost::asio::read_until(socket, buffer, '!');
+		//mute.unlock();
+		std::string message;
+		std::istream input_stream(&buffer);
+		std::getline(input_stream, message, '!') ;
+		std::cout << message << std::endl;
 
-	boost::asio::read_until(socket, buffer, '!');
-
-	std::string message;
-	std::istream input_stream(&buffer);
-	std::getline(input_stream, message, '!');
-	std::cout<<message << std::endl;
+	}
 }
+
 
 void write_data(boost::asio::ip::tcp::socket& socket)
 {
 	std::string message;
-	mute.lock();
-	std::cout << "Сообщение: ";
-	std::cin.getline(message, 100);
-	mute.unlock();
+	while(message != "Пока") {
+	getline(std::cin, message);
 	std::string data = name;
 	data += ": ";
 	data += message;
 	data += "!EOF";
+	//mute.lock();
 	boost::asio::write(socket, boost::asio::buffer(data));
+	//mute.unlock();
+	}
 }
+
 
 int main(int argc, char ** argv)
 {
-	//system("chcp 1251");
 	const std::size_t size = 100;
 	auto port = 8000;
 	boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address_v4::any(), port);
@@ -43,25 +53,33 @@ int main(int argc, char ** argv)
 
 	try
 	{
+
 		boost::asio::ip::tcp::acceptor acceptor(io_service, endpoint.protocol());
 		acceptor.bind(endpoint);
 		acceptor.listen(size);
 		boost::asio::ip::tcp::socket socket(io_service);
 		acceptor.accept(socket);
 
-		std::cout << "есть соединение" << std::endl;
-		std::cout << "Имя: ";
+		std::cout << "connection succeed" << std::endl;
+		std::cout << "Write your name: ";
 		std::cin.getline(name, 10);
 
-		while (true) {
-			read_data_until(socket);
-			write_data(socket);
-		}
+			//auto read = std::async(std::launch::async, [&socket](){read_data_until(socket);});
+			//auto write = std::async(std::launch::async, [&socket](){write_data(socket);});
+			thread read{[&socket](){read_data_until(socket);}};
+			thread write{[&socket](){write_data(socket);}};
+			//read.get();
+			//write.get();
+			read.join();
+			write.join();
+		 	//write_data(socket);
+		 	//read_data_until(socket);
+
 	}
-	catch (boost::system::system_error & err)
+	catch (boost::system::system_error & e)
 	{
-		std::cout << "Chat is ended. " << err.what() << std::endl;
-		return err.code().value();
+		std::cout << e.what() << std::endl;
+		return e.code().value();
 	}
 
 	return 0;

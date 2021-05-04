@@ -44,8 +44,8 @@ void write_data(boost::asio::ip::tcp::socket& socket)
 
 int main()
 {
-	std::string raw_ip_address = "127.0.0.1";
-	auto port = 4444;
+	std::string raw_ip_address = "192.168.1.4"; // мой внешний IP, если бы я принимала
+	auto port = 8000;
 	const std::size_t size = 30;
 
 	try
