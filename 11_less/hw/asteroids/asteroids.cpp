@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include<SFML/Audio.hpp>
 #include <time.h>
 #include <cmath>
 #include <memory>
@@ -188,6 +189,7 @@ class player: public Entity
 
 bool isCollide(Entity *a,Entity *b)
 {
+
   return (b->x - a->x)*(b->x - a->x)+
          (b->y - a->y)*(b->y - a->y)<
          (a->R + b->R)*(a->R + b->R);
@@ -209,6 +211,11 @@ public:
 
 int main()
 {
+	
+    Music music;//создаем объект музыки
+    music.openFromFile("audio/always.ogg");//загружаем файл
+    music.play();//
+    music.setLoop(true);
     std::random_device rd;
     RenderWindow app(VideoMode(W, H), "Asteroids!");
     app.setFramerateLimit(60);
@@ -242,7 +249,6 @@ int main()
     sf::Text text_points;
     sf::Font font;
 
-
     font.loadFromFile("images/Chunk Five Print.otf");
     text_points.setFont(font);
     text_points.setFillColor(sf::Color(255, 0, 0, 200));
@@ -267,6 +273,17 @@ int main()
     p->settings(sPlayer,W/2,H/2,0,20);
     entities.push_back(p);
 
+    SoundBuffer shootBuffer;//создаём буфер для звука
+    shootBuffer.loadFromFile("audio/shoot.ogg");//загружаем в него звук
+    Sound shoot(shootBuffer);
+
+    SoundBuffer babahBuffer;//создаём буфер для звука
+    babahBuffer.loadFromFile("audio/babah.ogg");//загружаем в него звук
+    Sound babah(babahBuffer);
+
+    // SoundBuffer deathBuffer;//создаём буфер для звука
+    // babahBuffer.loadFromFile("audio/death.ogg");//загружаем в него звук
+    // Sound death(deathBuffer);
     /////main loop/////
     while (app.isOpen())
     {
@@ -280,6 +297,7 @@ int main()
              if (event.key.code == Keyboard::Space)
               {
                 bullet *b = new bullet();
+                shoot.play();
                 b->settings(sBullet,p->x,p->y,p->angle,10);
                 entities.push_back(b);
               }
@@ -297,6 +315,7 @@ int main()
       if (a->name==names::asteroid && b->name==names::bullet)
        if ( isCollide(a,b) )
            {
+            babah.play();
             a->life=false;
             b->life=false;
             
@@ -322,6 +341,7 @@ int main()
       if (a->name==names::player && b->name==names::asteroid)
        if ( isCollide(a,b) )
            {
+            babah.play();
             b->life=false;
             
             Entity *e = new Entity();
@@ -406,7 +426,7 @@ int main()
       health *health_p = new health(Health_Points, 50 + i * 50, 80, 0);
     health_p->draw(app);
   }
-    app.draw(text_points);
+  app.draw(text_points);
    app.display();
   }
 

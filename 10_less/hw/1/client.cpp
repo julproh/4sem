@@ -5,43 +5,47 @@
 #include <mutex>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
-std::mutex mtx;
 
 char name[50];
 std::mutex mute;
+
 void read_data_until(boost::asio::ip::tcp::socket & socket) 
 {	
-	std::lock_guard<std::mutex> lck (mute);
+	mute.lock();
+	//std::cout << "start read" << std:: endl;
 	boost::asio::streambuf buffer;
 	boost::asio::read_until(socket, buffer, '!');
 	std::string message;
 	std::istream input_stream(&buffer);
 	std::getline(input_stream, message, '!');
 	std::cout << message << std::endl;
+	//std::cout << "end read" << std:: endl;
+	mute.unlock();
 
 }
 
 void write_data(boost::asio::ip::tcp::socket& socket)
 {
+	mute.lock();
+	//std::cout << "start write" << std:: endl;
+	std::cout << "Текст: ";
 	std::string message;
 	while(message != "Пока") {
-	mute.lock();
-	std::cout << "Текст: ";
 	getline(std::cin, message);
-	mute.unlock();
 	std::string data = name;
 	data += ": ";
 	data += message;
 	data += "!EOF";
-	//std::cout << std::endl << data << std::endl;
 	boost::asio::write(socket, boost::asio::buffer(data));
+	//std::cout << "end write" << std:: endl;
+	mute.unlock();
 	}
+	
 
 }
 
 int main()
 {
-	//system("chcp 1251");
 	std::string raw_ip_address = "127.0.0.1";
 	auto port = 4444;
 	const std::size_t size = 30;
@@ -50,42 +54,38 @@ int main()
 	{
 		boost::asio::ip::tcp::endpoint endpoint(
 		boost::asio::ip::address::from_string(raw_ip_address), port);
-
 		boost::asio::io_service io_service;
 
 		boost::asio::ip::tcp::socket socket(io_service, endpoint.protocol());
-
+		
 		socket.connect(endpoint);
 
 		std::cout << "Имя: ";
 		std::cin.getline(name, 50);
 
-		auto read = std::async([&socket](){read_data_until(socket);});
-		//boost::thread read(read_data_until, &socket);
-		auto write = std::async([&socket](){write_data(socket);});
-		//boost::thread write(write_data, socket);
 
 		while (true) {
+			//auto read = std::async([ &socket](){read_data_until(socket);});
+			boost::thread write{[&socket](){write_data(socket);}};
+			//auto write = std::async([&socket](){write_data(socket);});
+			boost::thread read{[&socket](){read_data_until(socket);}};
 			boost::asio::ip::tcp::acceptor acceptor(io_service, endpoint.protocol());
 			acceptor.bind(endpoint);
 			acceptor.listen(size);
-			read.get();
-			//write_data(socket);
-			//write.join();
-			//std::cout << read_data_until(socket) << std::endl;
-			write.get();
-			//read.join();
+			//auto read = std::async([&socket](){read_data_until(socket);});
+			//read.get();
+			//write.get();
+			write.join();
+			read.join();
 		}
 	}
 	
 	catch (boost::system::system_error& e)
 	{
 		std::cout << "Error code = " << e.code() << ". Message: " << e.what() << std::endl;
-		system("pause");
 		return e.code().value();
 	}
 
-	system("pause");
 	return 0;
 }
 	
