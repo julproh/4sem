@@ -187,7 +187,8 @@ class player: public Entity
 };
 
 
-bool isCollide(Entity *a,Entity *b)
+bool isCollide(std::shared_ptr<Entity> a,std::shared_ptr<Entity> b)
+//bool isCollide(Entity *a,Entity *b)
 {
 
   return (b->x - a->x)*(b->x - a->x)+
@@ -260,16 +261,19 @@ int main()
     text_points.setPosition(20, 0);
     app.setFramerateLimit(60);
 
-    std::list<Entity*> entities;
+    std::list<std::shared_ptr<Entity>> entities;
+    //std::list<Entity*> entities;
 
     for(int i=0;i<15;i++)
     {
-      asteroid *a = new asteroid();
+      std::shared_ptr<asteroid> a (new asteroid());
+      //asteroid *a = new asteroid();
       a->settings(sRock, rd()%W, rd()%H, rd()%360, 25);
       entities.push_back(a);
     }
 
-    player *p = new player();
+    std::shared_ptr<player> p (new player());
+    //player *p = new player();
     p->settings(sPlayer,W/2,H/2,0,20);
     entities.push_back(p);
 
@@ -296,7 +300,8 @@ int main()
             if (event.type == Event::KeyPressed)
              if (event.key.code == Keyboard::Space)
               {
-                bullet *b = new bullet();
+                std::shared_ptr<bullet> b (new bullet());
+                //bullet *b = new bullet();
                 shoot.play();
                 b->settings(sBullet,p->x,p->y,p->angle,10);
                 entities.push_back(b);
@@ -322,7 +327,8 @@ int main()
             p->points++;
             text_points.setString(std::to_string(p->points));
 
-            Entity *e = new Entity();
+            std::shared_ptr<Entity> e(new Entity());
+            //Entity *e = new Entity();
             e->settings(sExplosion,a->x,a->y);
             e->name=names::explosion;
             entities.push_back(e);
@@ -331,7 +337,8 @@ int main()
             for(int i=0;i<2;i++)
             {
              if (a->R==15) continue;
-             Entity *e = new asteroid();
+             std::shared_ptr<Entity> e(new asteroid());
+             //Entity *e = new asteroid();
              e->settings(sRock_small,a->x,a->y,rd()%360,15);
              entities.push_back(e);
             }
@@ -344,7 +351,8 @@ int main()
             babah.play();
             b->life=false;
             
-            Entity *e = new Entity();
+            std::shared_ptr<Entity> e(new Entity());
+            //Entity *e = new Entity();
             e->settings(sExplosion_ship,a->x,a->y);
             e->name=names::explosion;
             entities.push_back(e);
@@ -362,7 +370,7 @@ int main()
             else
               {
                 p->health_points--;
-                for (int i = 0; i < 64; i++) {
+                for (int i = 0; i < 64; i++) {  
                 app.draw(background);
                 e->anim.update();
                 e->draw(app);
@@ -402,19 +410,23 @@ int main()
 
     if (rd()%150 == 0)
      {
-       asteroid *a = new asteroid();
+       std::shared_ptr<asteroid> a(new asteroid());
+       //asteroid *a = new asteroid();
        a->settings(sRock, 0,rd()%H, rd()%360, 25);
        entities.push_back(a);
      }
 
     for(auto i=entities.begin();i!=entities.end();)
     {
-      Entity *e = *i;
+      std::shared_ptr<Entity> e;
+      e = *i;
+      //Entity *e = *i;
 
       e->update();
       e->anim.update();
 
-      if (e->life==false) {i=entities.erase(i); delete e;}
+      if (e->life==false) {i=entities.erase(i); //delete e;
+      }
       else i++;
     }
 
@@ -423,7 +435,8 @@ int main()
    for(auto i:entities) i->draw(app);
 
     for (auto i = 0; i < p->health_points; i++) {  
-      health *health_p = new health(Health_Points, 50 + i * 50, 80, 0);
+      std::shared_ptr<health> health_p(new health(Health_Points, 50 + i * 50, 80, 0));
+      //health *health_p = new health(Health_Points, 50 + i * 50, 80, 0);
     health_p->draw(app);
   }
   app.draw(text_points);
@@ -433,4 +446,4 @@ int main()
     return 0;
 }
 
-//g++ asteroids.cpp -o asteroids  -lsfml-graphics -lsfml-window -lsfml-system
+//g++ asteroids.cpp -o asteroids  -lsfml-graphics -lsfml-window -lsfml-system -lfsm-audio
