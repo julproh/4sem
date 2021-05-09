@@ -30,3 +30,4 @@ int main(int argc, char ** argv)
 
     return EXIT_SUCCESS;
 }
+//g++ main.cpp calculator.cpp visualizer.cpp -o main -lsfml-graphics -lsfml-window -lsfml-system -pthread
